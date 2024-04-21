@@ -24,6 +24,8 @@ Here is what we are trying to achieve :
 ``` csharp
 using System;
 using NetMQ;
+using NetMQ.Sockets;
+
 namespace Ventilator
 {
     public class Program
@@ -32,6 +34,7 @@ namespace Ventilator
         {
             // Task Ventilator
             // Binds PUSH socket to tcp://localhost:5557
+            // Connects sink PUSH socket to tcp://localhost:5558
             // Sends batch of tasks to workers via that socket
             Console.WriteLine("====== VENTILATOR ======");
             using (var sender = new PushSocket("@tcp://*:5557"))
@@ -56,7 +59,7 @@ namespace Ventilator
                     int workload = rand.Next(0, 100);
                     totalMs += workload;
                     Console.WriteLine("Workload : {0}", workload);
-                    sender.SendFrame(workload.ToString());
+                    sender.SendFrame(workload.ToString());sink.SendFrame("0");
                 }
                 Console.WriteLine("Total expected cost : {0} msec", totalMs);
                 Console.WriteLine("Press Enter to quit");
@@ -73,6 +76,8 @@ namespace Ventilator
 using System;
 using System.Threading;
 using NetMQ;
+using NetMQ.Sockets;
+
 namespace Worker
 {
     public class Program
@@ -119,6 +124,7 @@ namespace Worker
     using System.Threading;
     using System.Threading.Tasks;
     using NetMQ;
+    using NetMQ.Sockets;
 
     namespace Sink
     {
